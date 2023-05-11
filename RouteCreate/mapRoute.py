@@ -8,7 +8,7 @@ import networkx as nx
 
 def create_route(start_point, end_point, location)-> [(float, float)] :
     """this function return route coordinates"""
-    G = ox.graph_from_place(location, network_type="drive")
+    G = ox.graph_from_place(location, network_type="drive_service")
     G = ox.speed.add_edge_speeds(G)
     G = ox.speed.add_edge_travel_times(G)
     orig = ox.distance.nearest_nodes(G, X=start_point[0], Y=start_point[1])

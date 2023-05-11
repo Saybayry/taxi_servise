@@ -1,4 +1,5 @@
 from RouteCreate.mapRoute import create_route, calculate_price
+
 import geocoder
 
 
@@ -15,14 +16,15 @@ def print_hi(name):
     start_point = (83.788130, 53.345903)
     end_point = (83.723955, 53.382367)
     location = "Барнаул, Россия"
-    arr_path,len = create_route(start_point,end_point,location)
     # print(arr)
 
     # create tkinter window
     root_tk = tkinter.Tk()
-    root_tk.geometry(f"{800}x{600}")
+    root_tk.geometry(f"{800}x{700}")
     root_tk.title("map_view_example.py")
 
+    btn = tkinter.ttk.Button(text="Button")
+    btn.pack()
 
     # create map widget
     map_widget = tkintermapview.TkinterMapView(root_tk, width=800, height=600, corner_radius=0)
@@ -30,22 +32,45 @@ def print_hi(name):
     # set current widget position and zoom
     map_widget.set_address(location)
 
-    marker_1 = map_widget.set_position(start_point[1], start_point[0],marker=True)
-    marker_1.set_text("начальная точка")
-    marker_2 = map_widget.set_position(end_point[1], end_point[0], marker=True)
-    marker_2.set_text("конечная точка")
 
-    marker_3 = map_widget.set_position(address[0], address[1], marker=True)
-    marker_3.set_text("каакая то")
-
-    # marker_3 = map_widget.set_address("ул Титова 17 ,Барнаул, Россия", marker=True)
-    # marker_3.set_text("конечная точка")
+    marker_staart = map_widget.set_position(start_point[1], start_point[0],marker=True)
+    marker_staart.set_text("начальная точка")
+    marker_end = map_widget.set_position(end_point[1], end_point[0], marker=True)
+    marker_end.set_text("конечная точка")
 
 
+    def create_path(marker_staart,marker_end):
+        arr_path, len = create_route(start_point, end_point, location)
+        path_1 = map_widget.set_path([marker_staart.position, *arr_path, marker_end.position])
 
-    path_1 = map_widget.set_path([marker_1.position, *arr_path, marker_2.position])
-    print(calculate_price(len))
 
+##________________________________________________________________
+## добавление адреса через карту
+    def add_end_marker(coords):
+        print("Add marker:", coords)
+        marker_end.set_position(coords[0], coords[1],)
+        map_widget.delete_all_path()
+        arr_path = []
+        arr_path, len = create_route((marker_staart.position[1], marker_staart.position[0]), (coords[1], coords[0]), location)
+        path_1 = map_widget.set_path([marker_staart.position, *arr_path, marker_end.position])
+
+    map_widget.add_right_click_menu_command(label="обозначить конечную точку",
+                                            command=add_end_marker,
+                                            pass_coords=True)
+    def add_start_marker(coords):
+        print("Add marker:", coords)
+        marker_staart.set_position(coords[0], coords[1])
+        map_widget.delete_all_path()
+        arr_path=[]
+        arr_path, len = create_route((coords[1], coords[0]),(marker_end.position[1], marker_end.position[0]), location)
+        path_1 = map_widget.set_path([marker_staart.position, *arr_path, marker_end.position])
+
+    map_widget.add_right_click_menu_command(label="обозначить начальную точку",
+                                            command=add_start_marker,
+                                            pass_coords=True)
+
+
+##________________________________________________________________
 
     root_tk.mainloop()
     pass
